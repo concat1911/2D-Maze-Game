@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace ML.MazeGame
 {
-  public class MazeCellEdge : MonoBehaviour
+  public abstract class MazeCellEdge : MonoBehaviour
   {
 
     public MazeCell cell, otherCell;
@@ -17,6 +17,7 @@ namespace ML.MazeGame
       cell.SetEdge(direction, this);
       transform.parent = cell.transform;
       transform.localPosition = Vector3.zero;
+      transform.localRotation = direction.ToRotation();
     }
   }
 }
