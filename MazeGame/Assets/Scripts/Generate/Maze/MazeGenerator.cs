@@ -17,7 +17,9 @@ namespace ML.MazeGame
     [SerializeField] MazePassage passagePrefab;
     [SerializeField] MazeWall wallPrefab;
 
-    private MazeCell[,] cells;
+    MazeCell[,] cells;
+
+    public MazeCell[,] Cells{get{return cells;}}
 
     public void Generate()
     {
@@ -32,6 +34,8 @@ namespace ML.MazeGame
       {
         DoNextGenerationStep(activeCells);
       }
+
+      
     }
 
     private MazeCell CreateCell(Vector2Int pos)
