@@ -92,7 +92,7 @@ namespace ML.MazeGame
             allLevels[btnIndex-1] = levelSelect;
 
             //Set vertical line
-            if (btnIndex % 4 == 0){
+            if (btnIndex % 4 == 0 && btnIndex != numOfLevel){
               newLevel.transform.Find("line_vertical").gameObject.SetActive(true);
             }
 
@@ -124,7 +124,7 @@ namespace ML.MazeGame
 
     void SetRightLine(GameObject obj, int btnIndex)
     {
-      // if (btnIndex == numOfLevel) return;
+      if (btnIndex == numOfLevel && btnIndex%4 == 1) return;
       if (btnIndex % 2 == 0)
       {
         obj.transform.Find("line_up").gameObject.SetActive(true);
