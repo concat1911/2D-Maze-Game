@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
-using Unity.Jobs;
-using Unity.Burst;
 using Unity.Collections;
 
 namespace ML.MazeGame
@@ -16,6 +14,7 @@ namespace ML.MazeGame
     [SerializeField] int2 endPosition;
     [SerializeField] Sprite startNodeSprite;
     [SerializeField] Sprite endNodeSprite;
+    [SerializeField] bool speedTest;
 
     [Header("Refs")]
     [Tooltip("transform which contain all cell node")]
@@ -27,8 +26,14 @@ namespace ML.MazeGame
     const int MOVE_DIAGONAL_COST = 14;
 
     #region Mono
-    private void Awake() {
-      
+    private void Start()
+    {
+      //Test speed
+      if (!speedTest) return;
+      float temp = Time.realtimeSinceStartup;
+      FindPath();
+
+      Debug.Log("Path Finding Time : " + (Time.realtimeSinceStartup - temp).ToString("f4") + " ms");
     }
     #endregion
 
@@ -92,12 +97,12 @@ namespace ML.MazeGame
         {
           if (openList[i] == currentNodeIndex)
           {
-						openList.RemoveAtSwapBack(i);
-						break;
+            openList.RemoveAtSwapBack(i);
+            break;
           }
         }
 
-				closedList.Add(currentNodeIndex);
+        closedList.Add(currentNodeIndex);
 
         List<MazePassage> neighbourCells = cells[currentNode.x, currentNode.y].AllPassage();
         //Neighbour offset
@@ -108,24 +113,27 @@ namespace ML.MazeGame
 
           int neighbourNodeIndex = CalculateIndex(neighbourPosition.x, neighbourPosition.y, gridSize.x);
 
-          if(closedList.Contains(neighbourNodeIndex)){
+          if (closedList.Contains(neighbourNodeIndex))
+          {
             //Node already searched
             continue;
           }
 
-          PathNode  neighbourNode = pathNodeArray[neighbourNodeIndex];
+          PathNode neighbourNode = pathNodeArray[neighbourNodeIndex];
           //if(!neighbourNode.isWalkable) continue;
 
           int2 currentNodePosition = new int2(currentNode.x, currentNode.y);
 
           int tentativeGCost = currentNode.gCost + CalculateHCost(currentNodePosition, neighbourPosition);
-          if(tentativeGCost < neighbourNode.gCost){
+          if (tentativeGCost < neighbourNode.gCost)
+          {
             neighbourNode.parrentIndex = currentNodeIndex;
             neighbourNode.gCost = tentativeGCost;
             neighbourNode.CalculateFCost();
             pathNodeArray[neighbourNodeIndex] = neighbourNode;
 
-            if(!openList.Contains(neighbourNode.index)){
+            if (!openList.Contains(neighbourNode.index))
+            {
               openList.Add(neighbourNode.index);
             }
           }
@@ -133,9 +141,12 @@ namespace ML.MazeGame
       }
 
       PathNode endNode = pathNodeArray[endNodeIndex];
-      if(endNode.parrentIndex == -1){
+      if (endNode.parrentIndex == -1)
+      {
         //Path not found
-      }else{
+      }
+      else
+      {
         //Path founded
         NativeList<int2> path = CalculatePath(pathNodeArray, endNode);
 
@@ -145,14 +156,15 @@ namespace ML.MazeGame
 
           cells[pathPos.x, pathPos.y].gameObject.GetComponent<SpriteRenderer>().enabled = true;
 
-          if(i == 0){
+          if (i == 0)
+          {
             cells[pathPos.x, pathPos.y].gameObject.GetComponent<SpriteRenderer>().sprite = endNodeSprite;
           }
-          
-          if(i == path.Length - 1){
+
+          if (i == path.Length - 1)
+          {
             cells[pathPos.x, pathPos.y].gameObject.GetComponent<SpriteRenderer>().sprite = startNodeSprite;
           }
-          
         }
 
         path.Dispose();
@@ -164,17 +176,22 @@ namespace ML.MazeGame
       pathNodeArray.Dispose();
     }
 
-    private NativeList<int2> CalculatePath(NativeArray<PathNode> pathNodeArray, PathNode endNode){
-      if(endNode.parrentIndex == -1){
+    private NativeList<int2> CalculatePath(NativeArray<PathNode> pathNodeArray, PathNode endNode)
+    {
+      if (endNode.parrentIndex == -1)
+      {
         //path not found
         return new NativeList<int2>(Allocator.Temp);
-      }else{
+      }
+      else
+      {
         //path found
         NativeList<int2> path = new NativeList<int2>(Allocator.Temp);
         path.Add(new int2(endNode.x, endNode.y));
 
         PathNode currentNode = endNode;
-        while(currentNode.parrentIndex != -1){
+        while (currentNode.parrentIndex != -1)
+        {
           PathNode parrentNode = pathNodeArray[currentNode.parrentIndex];
           path.Add(new int2(parrentNode.x, parrentNode.y));
           currentNode = parrentNode;
@@ -210,7 +227,8 @@ namespace ML.MazeGame
       return lowestCostPathNode.index;
     }
 
-    public void GetAllNode(){
+    public void GetAllNode()
+    {
       MazeCell[] allCells = cellsParent.gameObject.GetComponentsInChildren<MazeCell>();
       cells = new MazeCell[gridSize.x, gridSize.y];
 
@@ -235,7 +253,7 @@ namespace ML.MazeGame
 
     //The node index which come to this node
     public int parrentIndex;
-    
+
     // public bool isWalkable;
 
     public void CalculateFCost()
