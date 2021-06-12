@@ -10,10 +10,6 @@ namespace ML.MazeGame{
         base.OnInspectorGUI();
 
         PathFinding m_script = (PathFinding)target;
-
-        GUILayout.Space(10);
-
-        if (GUILayout.Button("Find Path")) m_script.FindPath();
       }
     }
 }

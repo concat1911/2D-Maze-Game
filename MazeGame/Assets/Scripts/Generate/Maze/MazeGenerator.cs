@@ -34,8 +34,6 @@ namespace ML.MazeGame
       {
         DoNextGenerationStep(activeCells);
       }
-
-      
     }
 
     private MazeCell CreateCell(Vector2Int pos)

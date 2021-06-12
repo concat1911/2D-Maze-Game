@@ -10,16 +10,20 @@ namespace ML.MazeGame
   {
     [Header("Properties")]
     [SerializeField] Vector2Int gridSize;
+    public Vector2Int GridSize{get{return gridSize;}}
     [SerializeField] int2 startPosition;
+    public void SetStartPosition(Vector2Int pos){
+      startPosition = new int2(pos.x, pos.y);
+    }
     [SerializeField] int2 endPosition;
-    [SerializeField] Sprite startNodeSprite;
-    [SerializeField] Sprite endNodeSprite;
-    [SerializeField] bool speedTest;
+    public void SetEndPosition(Vector2Int pos){
+      endPosition = new int2(pos.x, pos.y);
+    }
 
     [Header("Refs")]
     [Tooltip("transform which contain all cell node")]
     [SerializeField] Transform cellsParent;
-    MazeCell[,] cells;
+    [SerializeField] List<Vector2Int> pathV;
 
     //Private
     const int MOVE_STRAIGHT_COST = 10;
@@ -29,19 +33,17 @@ namespace ML.MazeGame
     private void Start()
     {
       //Test speed
-      if (!speedTest) return;
-      float temp = Time.realtimeSinceStartup;
-      FindPath();
+      // if (!speedTest) return;
+      // float temp = Time.realtimeSinceStartup;
+      // FindPath();
 
-      Debug.Log("Path Finding Time : " + (Time.realtimeSinceStartup - temp).ToString("f4") + " ms");
+      // Debug.Log("Path Finding Time : " + (Time.realtimeSinceStartup - temp).ToString("f4") + " ms");
     }
     #endregion
 
     #region Functions
-    public void FindPath()
-    {
-      GetAllNode();
-
+    public List<Vector2Int> FindPath(MazeCell[,] cells)
+    { 
       NativeArray<PathNode> pathNodeArray = new NativeArray<PathNode>(gridSize.x * gridSize.y, Allocator.Temp);
 
       for (int x = 0; x < gridSize.x; x++)
@@ -149,22 +151,13 @@ namespace ML.MazeGame
       {
         //Path founded
         NativeList<int2> path = CalculatePath(pathNodeArray, endNode);
-
+        
         for (int i = 0; i < path.Length; i++)
         {
-          int2 pathPos = path[i];
+          Vector2Int pathPos = new Vector2Int(path[i].x, path[i].y);
 
-          cells[pathPos.x, pathPos.y].gameObject.GetComponent<SpriteRenderer>().enabled = true;
-
-          if (i == 0)
-          {
-            cells[pathPos.x, pathPos.y].gameObject.GetComponent<SpriteRenderer>().sprite = endNodeSprite;
-          }
-
-          if (i == path.Length - 1)
-          {
-            cells[pathPos.x, pathPos.y].gameObject.GetComponent<SpriteRenderer>().sprite = startNodeSprite;
-          }
+          cells[pathPos.x, pathPos.y].gameObject.GetComponentInChildren<SpriteRenderer>().enabled = true;
+          pathV.Add(pathPos);
         }
 
         path.Dispose();
@@ -174,6 +167,8 @@ namespace ML.MazeGame
       openList.Dispose();
       closedList.Dispose();
       pathNodeArray.Dispose();
+
+      return pathV;
     }
 
     private NativeList<int2> CalculatePath(NativeArray<PathNode> pathNodeArray, PathNode endNode)
@@ -225,18 +220,6 @@ namespace ML.MazeGame
         }
       }
       return lowestCostPathNode.index;
-    }
-
-    public void GetAllNode()
-    {
-      MazeCell[] allCells = cellsParent.gameObject.GetComponentsInChildren<MazeCell>();
-      cells = new MazeCell[gridSize.x, gridSize.y];
-
-      for (int i = 0; i < allCells.Length; i++)
-      {
-        MazeCell cell = allCells[i];
-        cells[cell.position.x, cell.position.y] = cell;
-      }
     }
     #endregion
   }
