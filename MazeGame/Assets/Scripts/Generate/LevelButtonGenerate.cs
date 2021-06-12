@@ -7,6 +7,8 @@ namespace ML.MazeGame
   {
     [Header("Properties")]
     [SerializeField] int numOfLevel;
+    public GameObject prefabRoot;
+    public string prefabPath;
 
     [Header("Refs")]
     [SerializeField] Transform contentObj;
@@ -70,9 +72,9 @@ namespace ML.MazeGame
           newLevel.transform.SetParent(newRow.transform, false);
 
           if(i%2 == 0){
-            if(j != 1) SetRightLine(newLevel, btnIndex);
+            if(j != 1) SetRightLine(newLevel, btnIndex, true);
           }else{
-            if(j != 4) SetRightLine(newLevel, btnIndex);
+            if(j != 4) SetRightLine(newLevel, btnIndex, false);
           }
 
           //Set index to button
@@ -108,8 +110,8 @@ namespace ML.MazeGame
     }
 
     public void RandomStageUnlock(){
+      ResetStages();
       int randomIndex = Random.Range(1, allLevels.Length);
-      Debug.Log(randomIndex);
 
       for (int i = 0; i < randomIndex; i++)
       {
@@ -119,12 +121,18 @@ namespace ML.MazeGame
     }
 
     public void ResetStages(){
-
+      for (int i = 0; i < allLevels.Length; i++)
+      {
+        allLevels[i].LockWithSprite(lockedSprite);
+      }
     }
 
-    void SetRightLine(GameObject obj, int btnIndex)
+    void SetRightLine(GameObject obj, int btnIndex, bool isEven)
     {
-      if (btnIndex == numOfLevel && btnIndex%4 == 1) return;
+      if (btnIndex == numOfLevel && !isEven){
+        return;
+      }
+
       if (btnIndex % 2 == 0)
       {
         obj.transform.Find("line_up").gameObject.SetActive(true);
@@ -134,5 +142,6 @@ namespace ML.MazeGame
         obj.transform.Find("line_down").gameObject.SetActive(true);
       }
     }
+
   }
 }
