@@ -3,7 +3,8 @@
 ---
 
 Picture worth 1000 words
-video picture worth 1000 pictures
+
+Video worth 1000 pictures
 
 https://www.youtube.com/watch?v=_4O8dUm0Va8
 
