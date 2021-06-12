@@ -30,6 +30,13 @@ namespace ML.MazeGame
       }
     }
 
+    public void StarLock(){
+      for (int i = 0; i < 3; i++)
+      {
+        transform.Find((i + 1) + "_star").gameObject.SetActive(false);
+      }
+    }
+
     public void UnlockWithSprite(Sprite sprite){
       isLocked = false;
       transform.Find("locked").gameObject.SetActive(false);
@@ -44,8 +51,12 @@ namespace ML.MazeGame
 
     public void LockWithSprite(Sprite sprite){
       isLocked = true;
-      transform.Find("locked").gameObject.SetActive(true);
       SetStageSprite(sprite);
+      StarLock();
+
+      if(btnIndex != 1){
+        transform.Find("locked").gameObject.SetActive(true);
+      }
     }
 
     public void LoadLevel()
